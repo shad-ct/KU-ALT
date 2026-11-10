@@ -1,127 +1,212 @@
-# Kannur University — Research & Development Cell Unified Portal
+# KU-ALT — Kannur University R&D Cell Unified Portal
 
-Institutional portal for research scholar registration, guide recognition, statutory scholar service applications (RAC, title changes, extensions), certificate issuance, and departmental equipment management.
+Full-stack application for managing research & development workflows at Kannur University.
 
----
-
-## Architecture & Tech Stack
-
-- **Backend:** Node.js 20 + Express, Sequelize v6 + `mysql2`, Umzug migrations, Zod environment validation, Pino logging, JWT authentication.
-- **Database:** MySQL 8.0, InnoDB, `utf8mb4_unicode_ci`, strict SQL mode, UTC timezone.
-- **Frontend:** React 18 + Vite, Tailwind CSS using custom design tokens (`tokens.css`), Radix UI primitives, Lucide icons.
-- **Design System:** Strictly minimal, flat institutional aesthetic (no gradients, shadows, emoji, or multi-colored cards).
-- **Infrastructure:** Docker Compose (`mysql`, `api`, `web`, `mailhog`).
+- **Backend** (`server/`): Express + Sequelize + MySQL, port `5000`
+- **Frontend** (`client/`): React + Vite + Tailwind CSS, port `5173`
 
 ---
 
-## Directory Structure
+## 1. Clone the repo
 
-```
-kannur-rd-portal/
-├── docker-compose.yml          # MySQL 8, API (Express), Web (Nginx), MailHog
-├── .env.example                # Sample environment configuration
-├── docs/                       # Specifications and Design System outputs
-│   ├── 00-master-prompt.md
-│   ├── 01-product-requirements.md
-│   ├── 02-architecture.md
-│   ├── 03-database-schema.md
-│   ├── 04-api-spec.md
-│   ├── 05-workflow-engine.md
-│   ├── 06-equipment-module.md
-│   ├── 07-rbac-security.md
-│   ├── 08-frontend-ui-design.md
-│   ├── 09-build-plan-and-agent-prompts.md
-│   └── design/                 # Phase D design tokens, component & screen specs
-├── server/                     # Backend API
-│   ├── migrations/             # Umzug migration files
-│   ├── src/
-│   │   ├── config/             # Zod-validated environment, constants
-│   │   ├── db/                 # Sequelize instance, transaction helper with deadlock retry
-│   │   ├── middleware/         # Error mapping, Pino logger
-│   │   ├── modules/health/     # /api/v1/health, /api/v1/health/db
-│   │   └── utils/              # ApiError, response envelope, pagination, sortWhitelist
-├── client/                     # Frontend SPA
-│   ├── src/
-│   │   ├── components/layout/  # AppShell (232px sidebar + 52px top bar)
-│   │   ├── components/ui/      # PageHeader, StatusChip
-│   │   ├── pages/              # Role-specific placeholders
-│   │   └── styles/             # tokens.css & base.css
+```bash
+git clone https://github.com/shad-ct/KU-ALT.git
+cd KU-ALT
 ```
 
 ---
 
-## Quickstart
+## 2. Prerequisites
 
-### Option 1: Running with Docker Compose (Recommended)
-
-1. **Clone & Configure:**
-   ```bash
-   cp .env.example .env
-   ```
-
-2. **Start all services:**
-   ```bash
-   docker compose up --build
-   ```
-
-3. **Verify running containers:**
-   - Web Application: [http://localhost:3000](http://localhost:3000)
-   - API Service: [http://localhost:5000/api/v1/health](http://localhost:5000/api/v1/health)
-   - Database Health Check: [http://localhost:5000/api/v1/health/db](http://localhost:5000/api/v1/health/db)
-   - MailHog (Email Inbox): [http://localhost:8025](http://localhost:8025)
+- **Node.js** 20+
+- **npm** (comes with Node)
+- **MySQL 8.0** (or use Docker Compose, see below)
 
 ---
 
-### Option 2: Running Locally for Development
+## 3. Environment variables
 
-#### 1. Backend Server
+Copy the example file and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set at least these:
+
+| Variable | Description | Example |
+|---|---|---|
+| `PORT` | Backend port | `5000` |
+| `DB_HOST` | MySQL host | `127.0.0.1` |
+| `DB_PORT` | MySQL port | `3307` |
+| `DB_NAME` | Database name | `kannur_rd_db` |
+| `DB_USER` | MySQL username | `kannur_user` |
+| `DB_PASSWORD` | MySQL password | `kannur_pass` |
+| `JWT_ACCESS_SECRET` | Secret for access tokens | random string |
+| `JWT_REFRESH_SECRET` | Secret for refresh tokens | random string |
+| `JWT_ACCESS_EXPIRY` | Access token expiry | `15m` |
+| `JWT_REFRESH_EXPIRY` | Refresh token expiry | `7d` |
+| `CORS_ORIGIN` | Frontend origin | `http://localhost:5173` |
+| `UPLOAD_DIR` | File upload directory | `./data/uploads` |
+| `SMTP_HOST` | SMTP host (MailHog for dev) | `127.0.0.1` |
+| `SMTP_PORT` | SMTP port | `1025` |
+
+Generate strong secrets in production:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+---
+
+## 4. Database setup
+
+### Option A — Docker Compose (recommended)
+
+Starts MySQL + MailHog + API + Web (Nginx):
+
+```bash
+docker-compose up -d
+```
+
+Services:
+- MySQL: `localhost:3307`
+- MailHog UI: `http://localhost:8025`
+- API: `http://localhost:5000`
+- Web: `http://localhost:3000`
+
+Then run migrations & seeds (see sections 5 & 6).
+
+### Option B — Manual MySQL
+
+1. Install & start MySQL 8.0.
+2. Create the database & user (adjust to match your `.env`):
+
+```sql
+CREATE DATABASE kannur_rd_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'kannur_user'@'127.0.0.1' IDENTIFIED BY 'kannur_pass';
+GRANT ALL PRIVILEGES ON kannur_rd_db.* TO 'kannur_user'@'127.0.0.1';
+FLUSH PRIVILEGES;
+```
+
+---
+
+## 5. Install dependencies
+
+Backend:
+
 ```bash
 cd server
 npm install
-npm run dev
 ```
 
-#### 2. Frontend Client
+Frontend:
+
 ```bash
-cd client
+cd ../client
 npm install
-npm run dev
 ```
-Client runs at [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## Health Check Verification Endpoints
+## 6. Run migrations
 
-- `GET /api/v1/health`
-  Returns service operational state, runtime environment, and uptime:
-  ```json
-  {
-    "success": true,
-    "data": {
-      "status": "UP",
-      "service": "Kannur University R&D Cell Unified Portal API",
-      "timestamp": "2026-11-08T10:45:00.000Z",
-      "uptimeSeconds": 12,
-      "environment": "development"
-    },
-    "message": "Service is operational"
-  }
-  ```
+From `server/`:
 
-- `GET /api/v1/health/db`
-  Pings the active MySQL connection pool:
-  ```json
-  {
-    "success": true,
-    "data": {
-      "status": "UP",
-      "database": "MySQL 8.0",
-      "connected": true,
-      "latencyMs": 4,
-      "timestamp": "2026-11-08T10:45:00.000Z"
-    },
-    "message": "Database connection is healthy and responsive"
-  }
-  ```
+```bash
+npm run migrate
+```
 
+Undo last migration:
+
+```bash
+npm run migrate:undo
+```
+
+---
+
+## 7. Seed data
+
+From `server/`:
+
+```bash
+npm run seed
+```
+
+Seeders run in order from `server/seeders/`:
+- `20261108000000-seed-roles-and-demo-users.js`
+- `20261108000001-seed-master-data.js`
+- `20261108000002-seed-workflow-chains.js`
+- `20261108000003-seed-certificates-and-equipment.js`
+
+Undo all seeders:
+
+```bash
+npm run seed:undo
+```
+
+---
+
+## 8. Run the app
+
+### Backend (from `server/`)
+
+Development (nodemon):
+
+```bash
+npm run dev
+```
+
+Production:
+
+```bash
+npm start
+```
+
+API available at `http://localhost:5000`.
+
+### Frontend (from `client/`)
+
+```bash
+npm run dev
+```
+
+Vite dev server at `http://localhost:5173`. Requests to `/api` are proxied to `http://localhost:5000`.
+
+Open `http://localhost:5173` in your browser.
+
+---
+
+## 9. Demo credentials
+
+After seeding, you can log in with the demo users created by the seeders (check `server/seeders/20261108000000-seed-roles-and-demo-users.js` for exact emails/passwords).
+
+---
+
+## 10. Run tests
+
+From `server/`:
+
+```bash
+npm test
+```
+
+---
+
+## Project structure
+
+```
+KU-ALT/
+├── server/              # Backend API (Express + Sequelize)
+│   ├── src/
+│   ├── migrations/
+│   ├── seeders/
+│   ├── data/uploads/
+│   └── package.json
+├── client/              # Frontend (React + Vite + Tailwind)
+│   ├── src/
+│   └── package.json
+├── docs/                # Architecture, API spec, design docs
+├── docker-compose.yml   # Full-stack local setup
+└── .env.example         # Environment variable template
+```
