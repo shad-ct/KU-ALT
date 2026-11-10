@@ -24,6 +24,9 @@ import adminRoutes from './modules/admin/admin.routes.js';
 
 const app = express();
 
+// Trust reverse proxy (Railway, Nginx)
+app.set('trust proxy', 1);
+
 // Security HTTP headers
 app.use(helmet());
 
@@ -31,9 +34,23 @@ app.use(helmet());
 app.use(globalRateLimiter);
 
 // CORS configuration
+const allowedOrigins = (env.CORS_ORIGIN || '').split(',').map((o) => o.trim()).filter(Boolean);
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.up.railway.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-request-id'],

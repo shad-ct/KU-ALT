@@ -29,7 +29,14 @@ const envSchema = z.object({
   UPLOAD_DIR: z.string().default('./data/uploads'),
 });
 
-const parsedEnv = envSchema.safeParse(process.env);
+const parsedEnv = envSchema.safeParse({
+  ...process.env,
+  DB_HOST: process.env.DB_HOST || process.env.MYSQLHOST || '127.0.0.1',
+  DB_PORT: process.env.DB_PORT || process.env.MYSQLPORT || 3306,
+  DB_NAME: process.env.DB_NAME || process.env.MYSQLDATABASE || 'kannur_rd_db',
+  DB_USER: process.env.DB_USER || process.env.MYSQLUSER || 'root',
+  DB_PASSWORD: process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : (process.env.MYSQLPASSWORD || ''),
+});
 
 if (!parsedEnv.success) {
   console.error('CRITICAL: Environment validation failure. Server cannot boot:');

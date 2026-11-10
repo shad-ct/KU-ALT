@@ -13,6 +13,12 @@ import {
 async function seedRealisticData() {
   console.log('Seeding realistic university records...');
 
+  const appCount = await Application.count();
+  if (appCount > 0 && process.env.FORCE_SEED !== 'true') {
+    console.log(`Applications already exist (${appCount} records found). Skipping realistic applications seed.`);
+    process.exit(0);
+  }
+
   const scholar = await Scholar.findByPk(1);
   if (!scholar) {
     console.error('Scholar 1 not found!');

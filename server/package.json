@@ -10,6 +10,7 @@
     "migrate": "node src/db/migrator.js up",
     "migrate:undo": "node src/db/migrator.js down",
     "seed": "node src/db/seeder.js up",
+    "seed:all": "node src/db/seeder.js up && node seed_registration_data.js && node seed_realistic.js",
     "seed:undo": "node src/db/seeder.js down",
     "test": "vitest run"
   },

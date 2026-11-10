@@ -11,13 +11,17 @@ export const runSeeders = async (action = 'up') => {
   const queryInterface = sequelize.getQueryInterface();
 
   // Create sequelize_data table to track executed seeders
-  await queryInterface.createTable('sequelize_data', {
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      primaryKey: true,
-    },
-  });
+  try {
+    await queryInterface.createTable('sequelize_data', {
+      name: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        primaryKey: true,
+      },
+    });
+  } catch (err) {
+    // Ignore if table already exists
+  }
 
   // Check if initial tables already have data
   const [roleCount] = await queryInterface.sequelize.query('SELECT COUNT(*) as cnt FROM `roles`');
