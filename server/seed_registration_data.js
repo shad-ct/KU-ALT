@@ -13,7 +13,6 @@
 
 import bcrypt from 'bcryptjs';
 import {
-  sequelize,
   Department,
   ResearchCentre,
   ResearchProgramme,
@@ -24,6 +23,7 @@ import {
   GuideSpecialization,
   GuideQualification,
 } from './src/models/index.js';
+import { sequelize } from './src/db/index.js';
 import { INSTITUTION_TYPE, ROLES } from './src/config/constants.js';
 
 async function seedRegistrationData() {
