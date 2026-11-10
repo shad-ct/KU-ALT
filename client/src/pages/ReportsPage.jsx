@@ -2,58 +2,46 @@ import React, { useState, useEffect } from 'react';
 import PageHeader from '../components/ui/PageHeader';
 import api from '../api/client';
 import { Download, Filter, BarChart3, RefreshCw, FileText } from 'lucide-react';
-import { Download, RefreshCw } from 'lucide-react';
 
 const REPORT_DEFINITIONS = [
   {
     key: 'active-scholars',
     title: 'Active Scholars Registry',
     description: 'Current list of all registered scholars with admission dates, guides, and departmental affiliations.',
-    title: 'Active scholars directory',
-    description: 'Current list of registered scholars with admission dates, guides, and departmental affiliations.',
   },
   {
     key: 'vacancies',
     title: 'Guide Vacancies & Slot Utilization',
-    title: 'Guide vacancies & slot utilization',
     description: 'Breakdown of research guide quota capacity, filled slots, and remaining admissions capacity.',
   },
   {
     key: 'fellowships',
     title: 'Scholar Fellowships & Financial Aid',
     description: 'Distribution of University, UGC-JRF, CSIR, and state research fellowships across scholars.',
-    title: 'Scholar fellowships & financial aid',
-    description: 'Distribution of university, UGC-JRF, CSIR, and state research fellowships across scholars.',
   },
   {
     key: 'turnaround',
     title: 'Application Turnaround Times (SLA)',
-    title: 'Application turnaround times',
     description: 'Average processing duration per approval step across departmental and university staff stages.',
   },
   {
     key: 'at-risk',
     title: 'At-Risk Scholars Diagnostic',
     description: 'Scholars exceeding statutory duration or approaching maximum submission deadline.',
-    title: 'At-risk scholars diagnostic',
-    description: 'Scholars exceeding normal tenure duration or approaching maximum submission deadline.',
   },
   {
     key: 'guide-scholars',
     title: 'Guide-to-Scholar Supervisory Matrix',
-    title: 'Guide-to-scholar supervisory matrix',
     description: 'Detailed roster of scholars supervised by each approved university research guide.',
   },
   {
     key: 'centre-wise',
     title: 'Centre-Wise Research Census',
-    title: 'Centre-wise research census',
     description: 'Comparative distribution of research centres, active guides, and affiliated scholars.',
   },
   {
     key: 'stage-distribution',
     title: 'Academic Stage Distribution',
-    title: 'Academic stage distribution',
     description: 'Scholars classified by current milestone: Coursework, RAC Reviews, Synopsis, and Thesis.',
   },
 ];
@@ -72,7 +60,6 @@ export const ReportsPage = () => {
       const res = await api.get(`/reports/${selectedKey}`);
       setData(res.data?.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to generate report');
       setError(err.response?.data?.message || err.message || 'Failed to generate report.');
     } finally {
       setLoading(false);
@@ -86,20 +73,11 @@ export const ReportsPage = () => {
   const handleExportCSV = async () => {
     try {
       setExporting(true);
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/v1/reports/${selectedKey}/export?format=csv`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      const res = await api.get(`/reports/${selectedKey}/export`, {
+      const res = await api.get(`/reports/${selectedKey}/export?format=csv`, {
         responseType: 'blob',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to export CSV report');
-      }
-
-      const blob = await response.blob();
+      const blob = new Blob([res.data]);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -108,15 +86,7 @@ export const ReportsPage = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${selectedKey}-report.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
     } catch (err) {
-      alert(err.message || 'Failed to download CSV');
       alert(err.response?.data?.message || err.message || 'Failed to export CSV');
     } finally {
       setExporting(false);
