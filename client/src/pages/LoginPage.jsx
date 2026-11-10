@@ -189,60 +189,58 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        {/* Demo Accounts: Collapsed disclosure, ONLY when import.meta.env.DEV */}
-        {import.meta.env.DEV && (
-          <details className="mt-6 border border-border rounded-md bg-surface p-3 text-[13px] text-text-muted group">
-            <summary className="cursor-pointer font-medium text-text select-none list-none flex items-center justify-between">
-              <span>Demo accounts (dev only)</span>
-              <span className="text-[12px] text-text-muted group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-2 text-[12px]">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('scholar@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                Scholar
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('guide@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                Guide
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('centrehead@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                Centre head
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('drc@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                DRC convenor
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('staff@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                Staff
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin@kannur.ac.in')}
-                className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left"
-              >
-                Admin
-              </button>
-            </div>
-            <p className="mt-2 text-[11px] text-text-subtle">Password: Password123!</p>
-          </details>
-        )}
+        {/* Demo Accounts: Quick-fill disclosure for testing/eval */}
+        <details open className="mt-6 border border-border rounded-md bg-surface p-3 text-[13px] text-text-muted group">
+          <summary className="cursor-pointer font-medium text-text select-none list-none flex items-center justify-between">
+            <span>Demo accounts (quick fill)</span>
+            <span className="text-[12px] text-text-muted group-open:rotate-180 transition-transform">▼</span>
+          </summary>
+          <div className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-2 text-[12px]">
+            <button
+              type="button"
+              onClick={() => handleQuickFill('scholar@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              🎓 Scholar
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('guide@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              👨‍🏫 Guide
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('centrehead@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              🏛️ Centre head
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('drc@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              📋 DRC convenor
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('staff@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              💼 Staff
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('admin@kannur.ac.in')}
+              className="p-1.5 rounded border border-border bg-surface-sub hover:bg-border text-left font-medium text-text transition-colors"
+            >
+              ⚡ Admin
+            </button>
+          </div>
+          <p className="mt-2 text-[11px] text-text-subtle">Password: Password123!</p>
+        </details>
       </div>
 
       {/* Footer: one line, small muted address */}
